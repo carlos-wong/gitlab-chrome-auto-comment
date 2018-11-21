@@ -12,14 +12,19 @@ var gitlab_axios_instance = axios.create({
 
 window.addEventListener ("load", myMain, false);
 
-function CreateBtn(buttonName,className,clickCallback){
-    let commentBtn = document.createElement("Button");       // Create a <li> node
+function CreateBtn(buttonName,parentdiv,className,clickCallback){
+  let divClassName = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > div');
+  let div = document.createElement("div");       // Create a <li> node
+  let commentBtn = document.createElement("Button");       // Create a <li> node
   commentBtn.className = className;
   var textnode = document.createTextNode(buttonName);  // Create a text node
   commentBtn.addEventListener('click', function() {
     clickCallback();
   });
+  div.className = divClassName;
+  commentBtn.style.marginLeft = "6px";
   commentBtn.appendChild(textnode);
+  parentdiv.appendChild(commentBtn);
   return commentBtn;
 }
 
@@ -55,31 +60,42 @@ function GitlabCommentissue(project_id,iid,comment,callback){
     });
 }
 
-function CommentIssue(note){
+function CommentCmd(data,note){
+  let username = GitAssigneeUsername(data);
+  let authorUsername = data.author.username;
+  let iid = data.iid;
+  let project_id = data.project_id;
+  GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername),(error)=>{console.log('comment error:',error);});
+}
+
+function CommentIssue(note,commandCmd){
   let issueInfo = GetCurrentIssueInfo();
   console.log('issueInfo is:',issueInfo);
   QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
     console.log(data);
-    let username = GitAssigneeUsername(data);
-    let authorUsername = data.author.username;
-    let iid = data.iid;
-    let project_id = data.project_id;
-    GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername),(error)=>{console.log('comment error:',error);});
+
+    commandCmd(data,note);
   }); 
 }
 
 function myMain () {
   let commentDiv = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions');
-  let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button.btn-close.js-note-target-close.btn.btn-comment.btn-comment-and-close.js-action-button');
+  let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > div > button.btn.btn-create.comment-btn.js-comment-button.js-comment-submit-button');
   console.log('commentDiv is:',commentDiv);
-  let goodCommentBtn = CreateBtn("good",closeissueBtn.className,()=>{
-    CommentIssue("#good");
+  CreateBtn("good",commentDiv,closeissueBtn.className,()=>{
+    CommentIssue("#good",CommentCmd);
   });
-  let warnCommentBtn = CreateBtn("warn",closeissueBtn.className,()=>{
-    CommentIssue("#warn");
+  CreateBtn("warn",commentDiv,closeissueBtn.className,()=>{
+    CommentIssue("#warn",CommentCmd);
   });
-  commentDiv.appendChild(goodCommentBtn);
-  commentDiv.appendChild(warnCommentBtn);
+  CreateBtn("Plan",commentDiv,closeissueBtn.className,()=>{
+    CommentIssue("#warn",(data,note)=>{
+      let iid = data.iid;
+      let project_id = data.project_id;
+      GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{console.log('comment error:',error);});
+    });
+
+  });
 
 }
 

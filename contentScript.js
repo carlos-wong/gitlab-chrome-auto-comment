@@ -65,6 +65,9 @@ function CommentCmd(data,note){
   let authorUsername = data.author.username;
   let iid = data.iid;
   let project_id = data.project_id;
+  if(username === 'Softdev-QA-bot'){
+    username = authorUsername;
+  }
   GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername),(error)=>{console.log('comment error:',error);});
 }
 

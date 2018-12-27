@@ -1,0 +1,6 @@
+config.js
+.tern-port
+dist/.tern-port
+dist/main.js
+node_modules
+package-lock.json

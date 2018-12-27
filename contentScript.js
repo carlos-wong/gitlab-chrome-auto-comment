@@ -23,6 +23,9 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
   });
   div.className = divClassName;
   commentBtn.style.marginLeft = "6px";
+  if(buttonName === "warn"){
+    commentBtn.style.backgroundColor ="#ff0000";
+  }
   commentBtn.appendChild(textnode);
   parentdiv.appendChild(commentBtn);
   return commentBtn;
@@ -76,14 +79,22 @@ function CommentIssue(note,commandCmd){
   console.log('issueInfo is:',issueInfo);
   QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
     console.log(data);
-
     commandCmd(data,note);
-  }); 
+  });
 }
 
 function myMain () {
   let commentDiv = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions');
   let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > div > button.btn.btn-create.comment-btn.js-comment-button.js-comment-submit-button');
+  let closeIssueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button.btn-close.js-note-target-close.btn.btn-comment.btn-comment-and-close.js-action-button');
+  if(closeIssueBtn){
+    closeIssueBtn.addEventListener('click', function() {
+      console.log('call close document');
+      setTimeout(()=>{
+        chrome.runtime.sendMessage({closeThis: true});
+      }, 600);
+    });
+  }
   console.log('commentDiv is:',commentDiv);
   CreateBtn("good",commentDiv,closeissueBtn.className,()=>{
     CommentIssue("#good",CommentCmd);
@@ -95,7 +106,9 @@ function myMain () {
     CommentIssue("#warn",(data,note)=>{
       let iid = data.iid;
       let project_id = data.project_id;
-      GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{console.log('comment error:',error);});
+      GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{
+        console.log('comment error:',error);
+        chrome.runtime.reload ()});
     });
 
   });

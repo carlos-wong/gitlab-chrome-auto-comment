@@ -26,7 +26,11 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
   if(buttonName === "warn"){
     commentBtn.style.backgroundColor ="#ff0000";
   }
+  else if(buttonName === "good"){
+    commentBtn.style.backgroundColor ="#1AAA55";
+  }
   commentBtn.appendChild(textnode);
+  commentBtn.style.color = "black";
   parentdiv.appendChild(commentBtn);
   return commentBtn;
 }

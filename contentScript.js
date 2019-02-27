@@ -80,16 +80,14 @@ function CommentCmd(data,note){
 
 function CommentIssue(note,commandCmd){
   let issueInfo = GetCurrentIssueInfo();
-  console.log('issueInfo is:',issueInfo);
   QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
-    console.log(data);
     commandCmd(data,note);
   });
 }
 
 function myMain () {
   let commentDiv = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions');
-  let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > div > button.btn.btn-create.comment-btn.js-comment-button.js-comment-submit-button');
+  let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button');
   let closeIssueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button.btn-close.js-note-target-close.btn.btn-comment.btn-comment-and-close.js-action-button');
   if(closeIssueBtn){
     closeIssueBtn.addEventListener('click', function() {
@@ -99,7 +97,6 @@ function myMain () {
       }, 600);
     });
   }
-  console.log('commentDiv is:',commentDiv);
   CreateBtn("good",commentDiv,closeissueBtn.className,()=>{
     CommentIssue("#good",CommentCmd);
   });
@@ -112,7 +109,8 @@ function myMain () {
       let project_id = data.project_id;
       GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{
         console.log('comment error:',error);
-        chrome.runtime.reload ()});
+        chrome.runtime.reload ();
+      });
     });
 
   });

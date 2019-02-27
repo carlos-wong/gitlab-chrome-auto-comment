@@ -75,7 +75,7 @@ function CommentCmd(data,note){
   if(username === 'Softdev-QA-bot'){
     username = authorUsername;
   }
-  GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername),(error)=>{console.log('comment error:',error);});
+  GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
 }
 
 function CommentIssue(note,commandCmd){

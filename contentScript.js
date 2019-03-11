@@ -29,6 +29,9 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
   else if(buttonName === "good"){
     commentBtn.style.backgroundColor ="#1AAA55";
   }
+  else if(buttonName === "Plan"){
+      commentBtn.style.backgroundColor ="#FBC250";
+  }
   commentBtn.appendChild(textnode);
   commentBtn.style.color = "black";
   parentdiv.appendChild(commentBtn);
@@ -68,21 +71,20 @@ function GitlabCommentissue(project_id,iid,comment,callback){
 }
 
 function CommentCmd(data,note){
-  let username = GitAssigneeUsername(data);
-  let authorUsername = data.author.username;
-  let iid = data.iid;
-  let project_id = data.project_id;
-  if(username === 'Softdev-QA-bot'){
+    let username = GitAssigneeUsername(data);
+    let authorUsername = data.author.username;
+    let iid = data.iid;
+    let project_id = data.project_id;
+
     username = authorUsername;
-  }
-  GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
+    GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
 }
 
 function CommentIssue(note,commandCmd){
-  let issueInfo = GetCurrentIssueInfo();
-  QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
-    commandCmd(data,note);
-  });
+    let issueInfo = GetCurrentIssueInfo();
+    QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
+        commandCmd(data,note);
+    });
 }
 
 function myMain () {

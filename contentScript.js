@@ -75,8 +75,9 @@ function CommentCmd(data,note){
     let authorUsername = data.author.username;
     let iid = data.iid;
     let project_id = data.project_id;
-
-    username = authorUsername;
+    if (authorUsername !== "carlos") {
+      username = authorUsername;
+    }
     GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
 }
 

@@ -2,7 +2,6 @@ var config = require('./config');
 var axios = require('axios');
 var lodash = require('lodash');
 
-console.log('auto comment extension loaded');
 
 var gitlab_axios_instance = axios.create({
   baseURL: config.api_url,
@@ -10,7 +9,26 @@ var gitlab_axios_instance = axios.create({
   headers: { "PRIVATE-TOKEN": config.token}
 });
 
-window.addEventListener ("load", myMain, false);
+
+window.addEventListener ("load", Main, false);
+
+function AssignIssueToAssigneId(token,project_id,issue_iid,assigned_id,callback) {
+  var data = null;
+
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+
+  xhr.addEventListener("readystatechange", function () {
+    if (this.readyState === 4) {
+      callback && callback(this.responseText)
+    }
+  });
+  xhr.open("PUT", "https://www.lejuhub.com/api/v4/projects/"+project_id+"/issues/"+issue_iid+"?assignee_ids="+assigned_id);
+  xhr.setRequestHeader("PRIVATE-TOKEN", token);
+
+  xhr.send(data);
+}
+
 
 function CreateBtn(buttonName,parentdiv,className,clickCallback){
   let divClassName = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > div');
@@ -30,6 +48,9 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
     commentBtn.style.backgroundColor ="#1AAA55";
   }
   else if(buttonName === "Plan"){
+      commentBtn.style.backgroundColor ="#FBC250";
+  }
+  else if(buttonName === "ToChengxin"){
       commentBtn.style.backgroundColor ="#FBC250";
   }
   commentBtn.appendChild(textnode);
@@ -87,11 +108,10 @@ function CommentIssue(note,commandCmd){
         commandCmd(data,note);
     });
 }
-
-function myMain () {
+function Main () {
   let commentDiv = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions');
   let closeissueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button');
-  let closeIssueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button.btn-close.js-note-target-close.btn.btn-comment.btn-comment-and-close.js-action-button');
+  let closeIssueBtn = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions > button');
   if(closeIssueBtn){
     closeIssueBtn.addEventListener('click', function() {
       console.log('call close document');
@@ -99,6 +119,9 @@ function myMain () {
         chrome.runtime.sendMessage({closeThis: true});
       }, 600);
     });
+  }
+  if (!closeissueBtn) {
+    return;
   }
   CreateBtn("good",commentDiv,closeissueBtn.className,()=>{
     CommentIssue("#good",CommentCmd);
@@ -111,13 +134,20 @@ function myMain () {
       let iid = data.iid;
       let project_id = data.project_id;
       GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{
-        console.log('comment error:',error);
+        if (error) {
+          console.log('comment error:',error);
+        }
         chrome.runtime.reload ();
       });
     });
 
   });
-
+  CreateBtn("ToChengxin",commentDiv,closeissueBtn.className,()=>{
+    console.log("assignee to chengxin");
+    let issueInfo = GetCurrentIssueInfo();
+    AssignIssueToAssigneId(config.token,encodeURIComponent(issueInfo.project),issueInfo.issue_iid,"76",(responseText)=>{
+    });
+  });
 }
 
 function GetCurrentIssueInfo(){
@@ -129,6 +159,7 @@ function GitlabParseURLInfo(url){
   let projectInfo = {};
   [projectInfo.groupname,projectInfo.projectname,projectInfo.type,projectInfo.mr] =  lodash.split(lodash.split(url,"https://www.lejuhub.com/")[1],'/');
   projectInfo.project = projectInfo.groupname + '/' + projectInfo.projectname;
+  projectInfo.issue_iid = projectInfo.mr.split("?")[0];
   return projectInfo;
 }
 

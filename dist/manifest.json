@@ -7,10 +7,9 @@
   "content_scripts": [
     {
       "matches": ["https://www.lejuhub.com/*/*/issues/*"],
-      "run_at": "document_end",
+      "run_at": "document_start",
       "js": ["main.js"],
-      "all_frames": true,
-      "run_at": "document_end"
+      "all_frames": true
     }
   ]
 }

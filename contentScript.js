@@ -61,9 +61,6 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
   return commentBtn;
 }
 
-function GitAssigneeUsername(issue){
-  return issue && issue.assignee && issue.assignee.username;
-}
 
 function QueryProjectIssue(project,iid,callback){
   gitlab_axios_instance
@@ -93,22 +90,10 @@ function GitlabCommentissue(project_id,iid,comment,callback){
     });
 }
 
-function CommentCmd(data,note){
-    let username = GitAssigneeUsername(data);
-    let authorUsername = data.author.username;
-    let iid = data.iid;
-    let project_id = data.project_id;
-    if (authorUsername !== "carlos") {
-      username = authorUsername;
-    }
-    GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
-}
 
-function CommentIssue(note,commandCmd){
-    let issueInfo = GetCurrentIssueInfo();
-    QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
-        commandCmd(data,note);
-    });
+function CommentIssue(note){
+  let issueInfo = GetCurrentIssueInfo();
+  SendMsgToBackgroundPage({type:"comment",note:note,issueInfo});
 }
 function Main () {
   let commentDiv = document.querySelector('#notes > div > ul > li > div > div.timeline-content.timeline-content-form > form > div.note-form-actions');
@@ -126,10 +111,10 @@ function Main () {
     return;
   }
   CreateBtn("good",commentDiv,closeissueBtn.className,()=>{
-    CommentIssue("#good",CommentCmd);
+    CommentIssue("#good");
   });
   CreateBtn("warn",commentDiv,closeissueBtn.className,()=>{
-    CommentIssue("#warn",CommentCmd);
+    CommentIssue("#warn");
   });
   CreateBtn("Assign to Plan Bot",commentDiv,closeissueBtn.className,()=>{
     let issueInfo = gitlab.GetCurrentIssueInfo();
@@ -158,14 +143,13 @@ function GitlabParseURLInfo(url){
 }
 
 function SendMsgToBackgroundPage(message){
-  console.log("Try to send message to chrome");
-  console.log("Runtime is:",chrome && chrome.runtime);
   chrome && chrome.runtime && chrome.runtime.sendMessage(message);
 }
 
-window.addEventListener('beforeunload', (event) => {
-  // Cancel the event as stated by the standard.
-  event.preventDefault();
-  // Chrome requires returnValue to be set.
-  event.returnValue = '';
-});
+//Alert before reload page for debug 
+// window.addEventListener('beforeunload', (event) => {
+//   // Cancel the event as stated by the standard.
+//   event.preventDefault();
+//   // Chrome requires returnValue to be set.
+//   event.returnValue = '';
+// });

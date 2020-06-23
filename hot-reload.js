@@ -68,5 +68,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     gitlab.AssigneeIssue(issueInfo.project,issueInfo.mr,message.assignee_id,(error)=>{
       console.log("after assgineed issue ");
     });
+  }else if(message.type === "comment"){
+    let issueInfo = message.issueInfo
+    let note = message.note;
+    console.log("Tryo to comment issue");
+    gitlab.QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
+      console.log("Try to comment depend on data:",data);
+      gitlab.CommentCmd(data,note);
+    });
   }
 });

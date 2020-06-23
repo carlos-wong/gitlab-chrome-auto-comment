@@ -93,6 +93,21 @@ function QueryProjectIssue(project,iid,callback){
     });
 }
 
+function GitAssigneeUsername(issue){
+  return issue && issue.assignee && issue.assignee.username;
+}
+
+function CommentCmd(data,note){
+    let username = GitAssigneeUsername(data);
+    let authorUsername = data.author.username;
+    let iid = data.iid;
+    let project_id = data.project_id;
+    if (authorUsername !== "carlos") {
+      username = authorUsername;
+    }
+    GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
+}
+
 let api={};
 
 api.QueryProjectMr = QueryProjectMr;
@@ -103,5 +118,6 @@ api.GetCurrentIssueInfo = GetCurrentIssueInfo;
 api.QueryProjectIssue = QueryProjectIssue;
 api.UpdateInstance = UpdateInstance;
 api.AssigneeIssue = AssigneeIssue;
+api.CommentCmd = CommentCmd;
 
 module.exports = api;

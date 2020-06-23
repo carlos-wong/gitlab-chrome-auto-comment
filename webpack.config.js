@@ -1,9 +1,13 @@
 const path = require('path');
 
 module.exports = {
-  entry: './contentScript.js',
+  devtool: 'cheap-module-source-map',
+  entry:{
+    main:'./contentScript.js',
+    hotreload:"./hot-reload.js"
+  },
   output: {
-    filename: 'main.js',
+    filename: '[name].js',
     path: path.resolve('./', 'dist')
   }
 };

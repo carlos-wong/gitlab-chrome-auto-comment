@@ -1,3 +1,11 @@
+var config = require('./config');
+var axios = require('axios');
+var lodash = require('lodash');
+var gitlab = require('./gitlab');
+
+gitlab.UpdateInstance(config.token);
+
+
 const filesInDirectory = dir => new Promise (resolve =>
 
     dir.createReader ().readEntries (entries =>
@@ -48,4 +56,17 @@ chrome.management.getSelf (self => {
 
         chrome.runtime.getPackageDirectoryEntry (dir => watchChanges (dir))
     }
+});
+
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  console.log(message);
+  if(message.closeThis){
+    chrome.tabs.remove(sender.tab.id);
+  }else if(message.type === "assignee"){
+    let issueInfo = message.issueInfo;
+    gitlab.AssigneeIssue(issueInfo.project,issueInfo.mr,message.assignee_id,(error)=>{
+      console.log("after assgineed issue ");
+    });
+  }
 });

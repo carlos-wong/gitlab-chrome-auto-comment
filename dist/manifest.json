@@ -2,11 +2,11 @@
   "name": "Gitlab shortcut comment",
   "version": "0.1",
   "manifest_version": 2,
-  "permissions": ["tabs", "<all_urls>"],
-  "background": { "scripts": ["hot-reload.js"] },
+  "permissions": ["tabs", "<all_urls>","storage"],
+  "background": { "scripts": ["hotreload.js"] },
   "content_scripts": [
     {
-      "matches": ["https://www.lejuhub.com/*/*/issues/*"],
+      "matches": ["https://www.lejuhub.com/*/*/*/issues/*"],
       "run_at": "document_start",
       "js": ["main.js"],
       "all_frames": true

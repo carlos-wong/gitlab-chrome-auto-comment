@@ -1,7 +1,9 @@
 var config = require('./config');
 var axios = require('axios');
 var lodash = require('lodash');
+var gitlab = require('./gitlab');
 
+gitlab.UpdateInstance(config.token);
 
 var gitlab_axios_instance = axios.create({
   baseURL: config.api_url,
@@ -129,24 +131,13 @@ function Main () {
   CreateBtn("warn",commentDiv,closeissueBtn.className,()=>{
     CommentIssue("#warn",CommentCmd);
   });
-  CreateBtn("Plan",commentDiv,closeissueBtn.className,()=>{
-    CommentIssue("#warn",(data,note)=>{
-      let iid = data.iid;
-      let project_id = data.project_id;
-      GitlabCommentissue(project_id,iid,config.planbotAssignCmd,(error)=>{
-        if (error) {
-          console.log('comment error:',error);
-        }
-        chrome.runtime.reload ();
-      });
-    });
-
+  CreateBtn("Assign to Plan Bot",commentDiv,closeissueBtn.className,()=>{
+    let issueInfo = gitlab.GetCurrentIssueInfo();
+    SendMsgToBackgroundPage({type:"assignee",assignee_id:"87",issueInfo});
   });
   CreateBtn("ToChengxin",commentDiv,closeissueBtn.className,()=>{
-    console.log("assignee to chengxin");
-    let issueInfo = GetCurrentIssueInfo();
-    AssignIssueToAssigneId(config.token,encodeURIComponent(issueInfo.project),issueInfo.issue_iid,"76",(responseText)=>{
-    });
+    let issueInfo = gitlab.GetCurrentIssueInfo();
+    SendMsgToBackgroundPage({type:"assignee",assignee_id:"76",issueInfo});
   });
 }
 
@@ -157,11 +148,24 @@ function GetCurrentIssueInfo(){
 
 function GitlabParseURLInfo(url){
   let projectInfo = {};
-  [projectInfo.groupname,projectInfo.projectname,projectInfo.type,projectInfo.mr] =  lodash.split(lodash.split(url,"https://www.lejuhub.com/")[1],'/');
+  [projectInfo.groupname,projectInfo.projectname,projectInfo.splitbar,projectInfo.type,projectInfo.mr] =  lodash.split(lodash.split(url,"https://www.lejuhub.com/")[1],'/');
+  url_info_array = lodash.split(lodash.split(url,"www.lejuhub.com/")[1],'/');
+  var debug_url_info_to_filter = lodash.clone(url_info_array.splice(2));
+  [projectInfo.type,projectInfo.mr] = lodash.filter(debug_url_info_to_filter,(o)=>{return o !== "-";});
   projectInfo.project = projectInfo.groupname + '/' + projectInfo.projectname;
   projectInfo.issue_iid = projectInfo.mr.split("?")[0];
   return projectInfo;
 }
 
+function SendMsgToBackgroundPage(message){
+  console.log("Try to send message to chrome");
+  console.log("Runtime is:",chrome && chrome.runtime);
+  chrome && chrome.runtime && chrome.runtime.sendMessage(message);
+}
 
-
+window.addEventListener('beforeunload', (event) => {
+  // Cancel the event as stated by the standard.
+  event.preventDefault();
+  // Chrome requires returnValue to be set.
+  event.returnValue = '';
+});

@@ -76,5 +76,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       console.log("Try to comment depend on data:",data);
       gitlab.CommentCmd(data,note);
     });
+  }else if(message.type === "LGTM"){
+    let issueInfo = message.issueInfo
+    let note = message.note;
+    gitlab.QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
+      gitlab.CommentCmd(data,note);
+    });
   }
 });

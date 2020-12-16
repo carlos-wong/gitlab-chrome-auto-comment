@@ -55,6 +55,9 @@ function CreateBtn(buttonName,parentdiv,className,clickCallback){
   else if(buttonName === "ToChengxin"){
       commentBtn.style.backgroundColor ="#FBC250";
   }
+  else if(buttonName === "LGTM"){
+      commentBtn.style.backgroundColor ="#1AAA55";
+  }
   commentBtn.appendChild(textnode);
   commentBtn.style.color = "black";
   parentdiv.appendChild(commentBtn);
@@ -123,6 +126,12 @@ function Main () {
   CreateBtn("ToChengxin",commentDiv,closeissueBtn.className,()=>{
     let issueInfo = gitlab.GetCurrentIssueInfo();
     SendMsgToBackgroundPage({type:"assignee",assignee_id:"76",issueInfo});
+  });
+  CreateBtn("LGTM",commentDiv,closeissueBtn.className,()=>{
+    CommentIssue("\/label ~LGTM");
+          setTimeout(()=>{
+        chrome.runtime.sendMessage({closeThis: true});
+      }, 1000);
   });
 }
 

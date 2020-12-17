@@ -80,7 +80,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     let issueInfo = message.issueInfo
     let note = message.note;
     gitlab.QueryProjectIssue(issueInfo.project,issueInfo.mr,(data)=>{
-      gitlab.CommentCmd(data,note);
+      gitlab.CommentPurenoteCmd(data,note);
     });
   }
 });

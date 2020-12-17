@@ -108,6 +108,18 @@ function CommentCmd(data,note){
     GitlabCommentissue(project_id,iid,note+" @"+(username || authorUsername)+ " @softdev-global",(error)=>{console.log('comment error:',error);});
 }
 
+function CommentPurenoteCmd(data,note){
+    let username = GitAssigneeUsername(data);
+    let authorUsername = data.author.username;
+    let iid = data.iid;
+    let project_id = data.project_id;
+    if (authorUsername !== "carlos") {
+      username = authorUsername;
+    }
+    GitlabCommentissue(project_id,iid,note+" \n",(error)=>{console.log('comment error:',error);});
+}
+
+
 let api={};
 
 api.QueryProjectMr = QueryProjectMr;
@@ -119,5 +131,6 @@ api.QueryProjectIssue = QueryProjectIssue;
 api.UpdateInstance = UpdateInstance;
 api.AssigneeIssue = AssigneeIssue;
 api.CommentCmd = CommentCmd;
+api.CommentPurenoteCmd= CommentPurenoteCmd;
 
 module.exports = api;

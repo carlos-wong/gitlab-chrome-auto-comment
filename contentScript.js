@@ -128,10 +128,8 @@ function Main () {
     SendMsgToBackgroundPage({type:"assignee",assignee_id:"76",issueInfo});
   });
   CreateBtn("LGTM",commentDiv,closeissueBtn.className,()=>{
-    CommentIssue("\/label ~LGTM");
-          setTimeout(()=>{
-        chrome.runtime.sendMessage({closeThis: true});
-      }, 1000);
+    let issueInfo = gitlab.GetCurrentIssueInfo();
+    SendMsgToBackgroundPage({type:"LGTM",note:"/label ~LGTM\n\nLGTM",issueInfo});
   });
 }
 
